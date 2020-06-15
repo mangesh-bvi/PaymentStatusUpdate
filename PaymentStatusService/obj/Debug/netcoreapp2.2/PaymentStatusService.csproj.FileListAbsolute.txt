@@ -1,0 +1,12 @@
+D:\Kaustubh\ALLBackjobs\PaymentStatus\PaymentStatusService\PaymentStatusService\bin\Debug\netcoreapp2.2\appsettings.json
+D:\Kaustubh\ALLBackjobs\PaymentStatus\PaymentStatusService\PaymentStatusService\bin\Debug\netcoreapp2.2\PaymentStatusService.deps.json
+D:\Kaustubh\ALLBackjobs\PaymentStatus\PaymentStatusService\PaymentStatusService\bin\Debug\netcoreapp2.2\PaymentStatusService.runtimeconfig.json
+D:\Kaustubh\ALLBackjobs\PaymentStatus\PaymentStatusService\PaymentStatusService\bin\Debug\netcoreapp2.2\PaymentStatusService.runtimeconfig.dev.json
+D:\Kaustubh\ALLBackjobs\PaymentStatus\PaymentStatusService\PaymentStatusService\bin\Debug\netcoreapp2.2\PaymentStatusService.dll
+D:\Kaustubh\ALLBackjobs\PaymentStatus\PaymentStatusService\PaymentStatusService\bin\Debug\netcoreapp2.2\PaymentStatusService.pdb
+D:\Kaustubh\ALLBackjobs\PaymentStatus\PaymentStatusService\PaymentStatusService\obj\Debug\netcoreapp2.2\PaymentStatusService.csproj.CoreCompileInputs.cache
+D:\Kaustubh\ALLBackjobs\PaymentStatus\PaymentStatusService\PaymentStatusService\obj\Debug\netcoreapp2.2\PaymentStatusService.AssemblyInfoInputs.cache
+D:\Kaustubh\ALLBackjobs\PaymentStatus\PaymentStatusService\PaymentStatusService\obj\Debug\netcoreapp2.2\PaymentStatusService.AssemblyInfo.cs
+D:\Kaustubh\ALLBackjobs\PaymentStatus\PaymentStatusService\PaymentStatusService\obj\Debug\netcoreapp2.2\PaymentStatusService.dll
+D:\Kaustubh\ALLBackjobs\PaymentStatus\PaymentStatusService\PaymentStatusService\obj\Debug\netcoreapp2.2\PaymentStatusService.pdb
+D:\Kaustubh\ALLBackjobs\PaymentStatus\PaymentStatusService\PaymentStatusService\obj\Debug\netcoreapp2.2\PaymentStatusService.csprojAssemblyReference.cache
