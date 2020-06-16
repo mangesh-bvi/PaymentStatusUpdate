@@ -110,7 +110,7 @@ namespace PaymentStatusService
 
                         if (paymentapiResponse.returnCode == "0" && paymentapiResponse.returnMessage == "Success")
                         {
-                            if (ShippingAddress !="" && PinCode !="" && City!=""  && State!="" && Country!="")
+                            if (ShippingAddress !="" && PinCode !="" && City!=""  && State!="" && Country!="" && DeliveryType!= "SelfPickedup")
                             {
                                 UpdateResponse(ID, /*paymentapiResponse.status*/ "PaymentDetails");
                             }
@@ -195,7 +195,7 @@ namespace PaymentStatusService
                 cmd.ExecuteNonQuery();
                 cmd.Connection.Close();
             }
-            catch
+            catch(Exception ex)
             {
 
             }
