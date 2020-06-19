@@ -18,7 +18,7 @@ namespace PaymentStatusService
         {
             IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json", true, true).Build();
             delaytime = Convert.ToInt32(config.GetSection("MySettings").GetSection("IntervalInMinutes").Value);
-           
+
             Thread _Individualprocessthread = new Thread(new ThreadStart(InvokeMethod));
             _Individualprocessthread.Start();
         }
@@ -26,11 +26,63 @@ namespace PaymentStatusService
         {
             while (true)
             {
-                GetdataFromMySQL();
+                GetConnectionStrings();
+                //GetdataFromMySQL();
                 Thread.Sleep(delaytime);
             }
         }
-        public static void GetdataFromMySQL()
+
+        public static void GetConnectionStrings()
+        {
+            string ServerName = string.Empty;
+            string ServerCredentailsUsername = string.Empty;
+            string ServerCredentailsPassword = string.Empty;
+            string DBConnection = string.Empty;
+
+
+            try
+            {
+                DataTable dt = new DataTable();
+                IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json", true, true).Build();
+                var constr = config.GetSection("ConnectionStrings").GetSection("HomeShop").Value;
+                MySqlConnection con = new MySqlConnection(constr);
+                MySqlCommand cmd = new MySqlCommand("SP_HSGetAllConnectionstrings", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                cmd.Connection.Open();
+                MySqlDataAdapter da = new MySqlDataAdapter(cmd);
+                da.Fill(dt);
+                cmd.Connection.Close();
+
+                if (dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        DataRow dr = dt.Rows[i];
+                        ServerName = Convert.ToString(dr["ServerName"]);
+                        ServerCredentailsUsername = Convert.ToString(dr["ServerCredentailsUsername"]);
+                        ServerCredentailsPassword = Convert.ToString(dr["ServerCredentailsPassword"]);
+                        DBConnection = Convert.ToString(dr["DBConnection"]);
+
+                        string ConString = "Data Source = " + ServerName + " ; port = " + 3306 + "; Initial Catalog = " + DBConnection + " ; User Id = " + ServerCredentailsUsername + "; password = " + ServerCredentailsPassword + "";
+                        GetdataFromMySQL(ConString);
+                    }
+                }
+            }
+            catch
+            {
+
+
+            }
+            finally
+            {
+
+                GC.Collect();
+            }
+
+
+        }
+
+        public static void GetdataFromMySQL(string ConString)
         {
             int ID = 0;
             string InvoiceNo = string.Empty;
@@ -57,11 +109,11 @@ namespace PaymentStatusService
                 DataTable dt = new DataTable();
 
                 IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json", true, true).Build();
-                var constr = config.GetSection("ConnectionStrings").GetSection("HomeShop").Value;
+                //var constr = config.GetSection("ConnectionStrings").GetSection("HomeShop").Value;
                 string ClientAPIURL = config.GetSection("MySettings").GetSection("ClientAPIURL").Value;
                 string TerminalId = config.GetSection("MySettings").GetSection("TerminalId").Value;
 
-                con = new MySqlConnection(constr);
+                con = new MySqlConnection(ConString);
                 MySqlCommand cmd = new MySqlCommand("SP_PHYGetPaymentDetails", con)
                 {
                     CommandType = System.Data.CommandType.StoredProcedure
@@ -92,7 +144,7 @@ namespace PaymentStatusService
                         DeliveryType = Convert.ToString(dr["DeliveryType"]);
 
                         var dtOffset = DateTimeOffset.Parse(Date, CultureInfo.InvariantCulture);
-                        
+
 
                         PaymentStatusRequest paymentStatus = new PaymentStatusRequest
                         {
@@ -110,7 +162,7 @@ namespace PaymentStatusService
 
                         if (paymentapiResponse.returnCode == "0" && paymentapiResponse.returnMessage == "Success")
                         {
-                            if (ShippingAddress !="" && PinCode !="" && City!=""  && State!="" && Country!="" && DeliveryType!= "SelfPickedup")
+                            if (ShippingAddress != "" && PinCode != "" && City != "" && State != "" && Country != "" && DeliveryType != "Pickup")
                             {
                                 UpdateResponse(ID, /*paymentapiResponse.status*/ "PaymentDetails");
                             }
@@ -118,11 +170,11 @@ namespace PaymentStatusService
                             {
                                 UpdatePaymentResponse(ID, /*paymentapiResponse.status*/ "PaymentDetails", DeliveryType);
                             }
-                            
+
                         }
                         else
                         {
-                            //logged to Elastic
+                            ExLogger(ID, InvoiceNo, Date, StoreName, "Error occured", "Technical error occured. Please try after sometime.");
                         }
 
                     }
@@ -131,7 +183,8 @@ namespace PaymentStatusService
             }
             catch (Exception ex)
             {
-                throw ex;
+
+                ExLogger(ID, InvoiceNo, Date, StoreName, ex.Message, ex.StackTrace);
             }
             finally
             {
@@ -174,7 +227,7 @@ namespace PaymentStatusService
         }
 
 
-        public static void UpdatePaymentResponse(int ID, string Status,string DeliveryType)
+        public static void UpdatePaymentResponse(int ID, string Status, string DeliveryType)
         {
 
             try
@@ -195,7 +248,7 @@ namespace PaymentStatusService
                 cmd.ExecuteNonQuery();
                 cmd.Connection.Close();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
             }
@@ -206,6 +259,38 @@ namespace PaymentStatusService
 
         }
 
+
+        public static void ExLogger(int TransactionID, string BillNo, string BillDate, string StoreCode, string ErrorMessage, string ErrorDiscription)
+        {
+            try
+            {
+                DataTable dt = new DataTable();
+                IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json", true, true).Build();
+                var constr = config.GetSection("ConnectionStrings").GetSection("HomeShop").Value;
+                MySqlConnection con = new MySqlConnection(constr);
+                MySqlCommand cmd = new MySqlCommand("SP_PHYInsertErrorLog", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@_transactionID", TransactionID);
+                cmd.Parameters.AddWithValue("@_billNo", BillNo);
+                cmd.Parameters.AddWithValue("@_billDate", BillDate);
+                cmd.Parameters.AddWithValue("@_storeCode", StoreCode);
+                cmd.Parameters.AddWithValue("@_errorMessage", ErrorMessage);
+                cmd.Parameters.AddWithValue("@_errorDiscription", ErrorDiscription);
+                cmd.Parameters.AddWithValue("@_repeatCount", 0);
+                cmd.Parameters.AddWithValue("@_functionName", "Payment Status");
+                cmd.Connection.Open();
+                cmd.ExecuteNonQuery();
+                cmd.Connection.Close();
+            }
+            catch (Exception ex)
+            {
+                //write code for genral exception
+            }
+            finally { GC.Collect(); }
+        }
 
     }
 }
