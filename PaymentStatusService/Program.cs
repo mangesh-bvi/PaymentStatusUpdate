@@ -27,7 +27,7 @@ namespace PaymentStatusService
             while (true)
             {
                 GetConnectionStrings();
-                //GetdataFromMySQL();
+               
                 Thread.Sleep(delaytime);
             }
         }
@@ -129,7 +129,7 @@ namespace PaymentStatusService
                         DataRow dr = dt.Rows[i];
                         ID = Convert.ToInt32(dr["ID"]);
                         InvoiceNo = Convert.ToString(dr["InvoiceNo"]);
-                        Date = Convert.ToString(dr["Date"]);
+                        Date = Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd HH:mm:ss");
                         CustomerName = Convert.ToString(dr["CustomerName"]);
                         MobileNumber = Convert.ToString(dr["MobileNumber"]);
                         TokenId = Convert.ToString(dr["TokenId"]);
@@ -164,17 +164,18 @@ namespace PaymentStatusService
                         {
                             if (ShippingAddress != "" && PinCode != "" && City != "" && State != "" && Country != "" && DeliveryType != "Pickup")
                             {
-                                UpdateResponse(ID, /*paymentapiResponse.status*/ "PaymentDetails");
+        
+                                UpdateResponse(ID, /*paymentapiResponse.status*/ "PaymentDetails", ConString);
                             }
                             else
                             {
-                                UpdatePaymentResponse(ID, /*paymentapiResponse.status*/ "PaymentDetails", DeliveryType);
+                                UpdatePaymentResponse(ID, /*paymentapiResponse.status*/ "PaymentDetails", DeliveryType, ConString);
                             }
 
                         }
                         else
                         {
-                            ExLogger(ID, InvoiceNo, Date, StoreName, "Error occured", "Technical error occured. Please try after sometime.");
+                            ExLogger(ID, InvoiceNo, Date, StoreName, "Error occured", "Technical error occured. Please try after sometime.", ConString);
                         }
 
                     }
@@ -184,7 +185,7 @@ namespace PaymentStatusService
             catch (Exception ex)
             {
 
-                ExLogger(ID, InvoiceNo, Date, StoreName, ex.Message, ex.StackTrace);
+                ExLogger(ID, InvoiceNo, Date, StoreName, ex.Message, ex.StackTrace, ConString);
             }
             finally
             {
@@ -196,15 +197,15 @@ namespace PaymentStatusService
             }
         }
 
-        public static void UpdateResponse(int ID, string Status)
+        public static void UpdateResponse(int ID, string Status,string ConString)
         {
 
             try
             {
                 DataTable dt = new DataTable();
-                IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json", true, true).Build();
-                var constr = config.GetSection("ConnectionStrings").GetSection("HomeShop").Value;
-                MySqlConnection con = new MySqlConnection(constr);
+                //IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json", true, true).Build();
+                //var constr = config.GetSection("ConnectionStrings").GetSection("HomeShop").Value;
+                MySqlConnection con = new MySqlConnection(ConString);
                 MySqlCommand cmd = new MySqlCommand("SP_PHYUpdatePaymentStatus", con)
                 {
                     CommandType = CommandType.StoredProcedure
@@ -227,15 +228,15 @@ namespace PaymentStatusService
         }
 
 
-        public static void UpdatePaymentResponse(int ID, string Status, string DeliveryType)
+        public static void UpdatePaymentResponse(int ID, string Status, string DeliveryType, string ConString)
         {
 
             try
             {
                 DataTable dt = new DataTable();
-                IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json", true, true).Build();
-                var constr = config.GetSection("ConnectionStrings").GetSection("HomeShop").Value;
-                MySqlConnection con = new MySqlConnection(constr);
+                //IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json", true, true).Build();
+                //var constr = config.GetSection("ConnectionStrings").GetSection("HomeShop").Value;
+                MySqlConnection con = new MySqlConnection(ConString);
                 MySqlCommand cmd = new MySqlCommand("SP_PHYUpdatePaymentStatusAction", con)
                 {
                     CommandType = CommandType.StoredProcedure
@@ -260,14 +261,14 @@ namespace PaymentStatusService
         }
 
 
-        public static void ExLogger(int TransactionID, string BillNo, string BillDate, string StoreCode, string ErrorMessage, string ErrorDiscription)
+        public static void ExLogger(int TransactionID, string BillNo, string BillDate, string StoreCode, string ErrorMessage, string ErrorDiscription, string ConString)
         {
             try
             {
                 DataTable dt = new DataTable();
                 IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json", true, true).Build();
                 var constr = config.GetSection("ConnectionStrings").GetSection("HomeShop").Value;
-                MySqlConnection con = new MySqlConnection(constr);
+                MySqlConnection con = new MySqlConnection(ConString);
                 MySqlCommand cmd = new MySqlCommand("SP_PHYInsertErrorLog", con)
                 {
                     CommandType = CommandType.StoredProcedure
