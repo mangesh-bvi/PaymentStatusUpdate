@@ -34,9 +34,9 @@ namespace PaymentStatusService.Service
                     strresponse = streamReader.ReadToEnd();
                 }
             }
-            catch (Exception ex)
+            catch 
             {
-                throw;
+               
             }
 
             return strresponse;

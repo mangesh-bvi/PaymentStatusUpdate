@@ -32,6 +32,9 @@ namespace PaymentStatusService
             }
         }
 
+        /// <summary>
+        /// Get All ConnectionStrings for multitenancy
+        /// </summary>
         public static void GetConnectionStrings()
         {
             string ServerName = string.Empty;
@@ -82,6 +85,11 @@ namespace PaymentStatusService
 
         }
 
+
+        /// <summary>
+        /// Get data FromMySQL where Payment Pending
+        /// </summary>
+        /// <param name="ConString"></param>
         public static void GetdataFromMySQL(string ConString)
         {
             int ID = 0;
@@ -109,7 +117,7 @@ namespace PaymentStatusService
                 DataTable dt = new DataTable();
 
                 IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json", true, true).Build();
-                //var constr = config.GetSection("ConnectionStrings").GetSection("HomeShop").Value;
+                
                 string ClientAPIURL = config.GetSection("MySettings").GetSection("ClientAPIURL").Value;
                 string TerminalId = config.GetSection("MySettings").GetSection("TerminalId").Value;
 
@@ -189,22 +197,24 @@ namespace PaymentStatusService
             }
             finally
             {
-                if (con != null)
-                {
-                    con.Close();
-                }
+               
                 GC.Collect();
             }
         }
 
+        /// <summary>
+        /// Update Response
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <param name="Status"></param>
+        /// <param name="ConString"></param>
         public static void UpdateResponse(int ID, string Status,string ConString)
         {
 
             try
             {
                 DataTable dt = new DataTable();
-                //IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json", true, true).Build();
-                //var constr = config.GetSection("ConnectionStrings").GetSection("HomeShop").Value;
+                
                 MySqlConnection con = new MySqlConnection(ConString);
                 MySqlCommand cmd = new MySqlCommand("SP_PHYUpdatePaymentStatus", con)
                 {
@@ -222,20 +232,26 @@ namespace PaymentStatusService
             }
             finally
             {
+               
                 GC.Collect();
             }
 
         }
 
-
+        /// <summary>
+        /// Update Payment Response
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <param name="Status"></param>
+        /// <param name="DeliveryType"></param>
+        /// <param name="ConString"></param>
         public static void UpdatePaymentResponse(int ID, string Status, string DeliveryType, string ConString)
         {
 
             try
             {
                 DataTable dt = new DataTable();
-                //IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json", true, true).Build();
-                //var constr = config.GetSection("ConnectionStrings").GetSection("HomeShop").Value;
+                
                 MySqlConnection con = new MySqlConnection(ConString);
                 MySqlCommand cmd = new MySqlCommand("SP_PHYUpdatePaymentStatusAction", con)
                 {
@@ -260,7 +276,16 @@ namespace PaymentStatusService
 
         }
 
-
+        /// <summary>
+        /// Exception Logger
+        /// </summary>
+        /// <param name="TransactionID"></param>
+        /// <param name="BillNo"></param>
+        /// <param name="BillDate"></param>
+        /// <param name="StoreCode"></param>
+        /// <param name="ErrorMessage"></param>
+        /// <param name="ErrorDiscription"></param>
+        /// <param name="ConString"></param>
         public static void ExLogger(int TransactionID, string BillNo, string BillDate, string StoreCode, string ErrorMessage, string ErrorDiscription, string ConString)
         {
             try
