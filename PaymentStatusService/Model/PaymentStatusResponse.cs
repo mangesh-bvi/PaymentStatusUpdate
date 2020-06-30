@@ -30,5 +30,9 @@ namespace PaymentStatusService.Model
         /// status
         /// </summary>
         public string status { get; set; }
+        /// <summary>
+        /// tokenStatus
+        /// </summary>
+        public string tokenStatus { get; set; }
     }
 }

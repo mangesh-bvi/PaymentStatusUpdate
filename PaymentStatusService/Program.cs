@@ -106,6 +106,7 @@ namespace PaymentStatusService
             string StoreName = string.Empty;
             string CompanayName = string.Empty;
             string apiResponse = string.Empty;
+            string apitokenRes = string.Empty;
             string ShippingAddress = string.Empty;
             string PinCode = string.Empty;
             string City = string.Empty;
@@ -123,7 +124,12 @@ namespace PaymentStatusService
                 IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json", true, true).Build();
                 
                 string ClientAPIURL = config.GetSection("MySettings").GetSection("ClientAPIURL").Value;
+                string clientAPIUrlForGenerateToken = config.GetSection("MySettings").GetSection("clientAPIUrlForGenerateToken").Value;
                 string TerminalId = config.GetSection("MySettings").GetSection("TerminalId").Value;
+                string Client_Id = config.GetSection("MySettings").GetSection("Client_Id").Value;
+                string Client_Secret = config.GetSection("MySettings").GetSection("Client_Secret").Value;
+                string Grant_Type = config.GetSection("MySettings").GetSection("Grant_Type").Value;
+                string Scope = config.GetSection("MySettings").GetSection("Scope").Value;
 
                 con = new MySqlConnection(ConString);
                 MySqlCommand cmd = new MySqlCommand("SP_PHYGetPaymentDetails", con)
@@ -147,7 +153,7 @@ namespace PaymentStatusService
                         TokenId = Convert.ToString(dr["TokenId"]);
                         Alias = Convert.ToString(dr["Alias"]);
                         StoreName = Convert.ToString(dr["StoreName"]);
-                        CompanayName = Convert.ToString(dr["CompanayName"]);
+                        CompanayName = Convert.ToString(dr["ProgramCode"]);
                         ShippingAddress = Convert.ToString(dr["ShippingAddress"]);
                         PinCode = Convert.ToString(dr["PinCode"]);
                         City = Convert.ToString(dr["City"]);
@@ -157,6 +163,11 @@ namespace PaymentStatusService
 
                         var dtOffset = DateTimeOffset.Parse(Date, CultureInfo.InvariantCulture);
 
+                        string apiReq = "Client_Id=" + Client_Id + "&Client_Secret=" + Client_Secret + "&Grant_Type=" + Grant_Type + "&Scope=" + Scope;
+
+                        apitokenRes = CommonService.SendApiRequestToken(clientAPIUrlForGenerateToken + "connect/token", apiReq);
+                        HSResponseGenerateToken hSResponseGenerateToken = new HSResponseGenerateToken();
+                        hSResponseGenerateToken = JsonConvert.DeserializeObject<HSResponseGenerateToken>(apitokenRes);
 
                         PaymentStatusRequest paymentStatus = new PaymentStatusRequest
                         {
@@ -166,13 +177,16 @@ namespace PaymentStatusService
                             billDateTime = dtOffset.ToString("yyyy-MM-dd'T'HH:mm:ss.249'Z'"),
                             terminalId = TerminalId,
                             merchantTxnID = InvoiceNo,
-                            mobile = MobileNumber.Length > 10 ? MobileNumber : "91" + MobileNumber.TrimStart('0')
+                            mobile = MobileNumber.TrimStart('0')
                         };
-                        string apiReq = JsonConvert.SerializeObject(paymentStatus);
-                        apiResponse = CommonService.SendApiRequest(ClientAPIURL + "/api/GetPaymentStatus", apiReq);
-                        paymentapiResponse = JsonConvert.DeserializeObject<PaymentStatusResponse>(apiResponse);
+                        string apiReqpayment = JsonConvert.SerializeObject(paymentStatus);
 
-                        if (paymentapiResponse.returnCode == "0" && paymentapiResponse.returnMessage == "Success")
+                        if (!string.IsNullOrEmpty(hSResponseGenerateToken.access_token))
+                        {
+                            apiResponse = CommonService.SendApiRequest(ClientAPIURL + "/api/GetPaymentStatus", apiReqpayment, hSResponseGenerateToken.access_token);
+                            paymentapiResponse = JsonConvert.DeserializeObject<PaymentStatusResponse>(apiResponse);
+                        }
+                        if (paymentapiResponse.returnCode == "0" && paymentapiResponse.tokenStatus.Contains("Success"))
                         {
                             if (ShippingAddress != "" && PinCode != "" && City != "" && State != "" && Country != "" && DeliveryType != "Pickup")
                             {
