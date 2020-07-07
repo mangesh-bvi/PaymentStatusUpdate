@@ -174,7 +174,8 @@ namespace PaymentStatusService
                             tokenId = TokenId,
                             programCode = CompanayName,
                             storeCode = StoreName,
-                            billDateTime = dtOffset.ToString("yyyy-MM-dd'T'HH:mm:ss.249'Z'"),
+                            //billDateTime = dtOffset.ToString("yyyy-MM-dd'T'HH:mm:ss.249'Z'"),
+                            billDateTime = dtOffset.ToString("dd-MMM-yyyy hh:mm:ss"),
                             terminalId = TerminalId,
                             merchantTxnID = InvoiceNo,
                             mobile = MobileNumber.TrimStart('0')
