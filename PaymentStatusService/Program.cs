@@ -103,7 +103,7 @@ namespace PaymentStatusService
             string MobileNumber = string.Empty;
             string TokenId = string.Empty;
             string Alias = string.Empty;
-            string StoreName = string.Empty;
+            string StoreCode = string.Empty;
             string CompanayName = string.Empty;
             string apiResponse = string.Empty;
             string apitokenRes = string.Empty;
@@ -152,7 +152,7 @@ namespace PaymentStatusService
                         MobileNumber = Convert.ToString(dr["MobileNumber"]);
                         TokenId = Convert.ToString(dr["TokenId"]);
                         Alias = Convert.ToString(dr["Alias"]);
-                        StoreName = Convert.ToString(dr["StoreName"]);
+                        StoreCode = Convert.ToString(dr["StoreCode"]);
                         CompanayName = Convert.ToString(dr["ProgramCode"]);
                         ShippingAddress = Convert.ToString(dr["ShippingAddress"]);
                         PinCode = Convert.ToString(dr["PinCode"]);
@@ -173,7 +173,7 @@ namespace PaymentStatusService
                         {
                             tokenId = TokenId,
                             programCode = CompanayName,
-                            storeCode = StoreName,
+                            storeCode = StoreCode,
                             //billDateTime = dtOffset.ToString("yyyy-MM-dd'T'HH:mm:ss.249'Z'"),
                             billDateTime = dtOffset.ToString("dd-MMM-yyyy hh:mm:ss"),
                             terminalId = TerminalId,
@@ -202,7 +202,7 @@ namespace PaymentStatusService
                         }
                         else
                         {
-                            ExLogger(ID, InvoiceNo, Date, StoreName, "Error occured", "Technical error occured. Please try after sometime.", ConString);
+                            ExLogger(ID, InvoiceNo, Date, StoreCode, paymentapiResponse.returnMessage, paymentapiResponse.tokenStatus, ConString);
                         }
 
                     }
@@ -212,7 +212,7 @@ namespace PaymentStatusService
             catch (Exception ex)
             {
 
-                ExLogger(ID, InvoiceNo, Date, StoreName, ex.Message, ex.StackTrace, ConString);
+                ExLogger(ID, InvoiceNo, Date, StoreCode, ex.Message, ex.StackTrace, ConString);
             }
             finally
             {
