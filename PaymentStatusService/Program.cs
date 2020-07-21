@@ -97,6 +97,7 @@ namespace PaymentStatusService
         public static void GetdataFromMySQL(string ConString)
         {
             int ID = 0;
+            int TenantId = 0;
             string InvoiceNo = string.Empty;
             string Date = string.Empty;
             string CustomerName = string.Empty;
@@ -146,6 +147,7 @@ namespace PaymentStatusService
                     {
                         DataRow dr = dt.Rows[i];
                         ID = Convert.ToInt32(dr["ID"]);
+                        TenantId = Convert.ToInt32(dr["TenantId"]);
                         InvoiceNo = Convert.ToString(dr["InvoiceNo"]);
                         Date = Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd HH:mm:ss");
                         CustomerName = Convert.ToString(dr["CustomerName"]);
@@ -198,6 +200,8 @@ namespace PaymentStatusService
                             {
                                 UpdatePaymentResponse(ID, /*paymentapiResponse.status*/ "PaymentDetails", DeliveryType, ConString);
                             }
+
+                            CommonService.SmsWhatsUpDataSend(TenantId, 0, CompanayName, ID, ClientAPIURL, "PaymentStatus", ConString, hSResponseGenerateToken.access_token);
 
                         }
                         else
