@@ -201,7 +201,7 @@ namespace PaymentStatusService
                                 UpdatePaymentResponse(ID, /*paymentapiResponse.status*/ "PaymentDetails", DeliveryType, ConString);
                             }
 
-                            CommonService.SmsWhatsUpDataSend(TenantId, 0, CompanayName, ID, ClientAPIURL, "PaymentStatus", ConString, hSResponseGenerateToken.access_token);
+                            //CommonService.SmsWhatsUpDataSend(TenantId, 0, CompanayName, ID, ClientAPIURL, "PaymentStatus", ConString, hSResponseGenerateToken.access_token);
 
                         }
                         else
