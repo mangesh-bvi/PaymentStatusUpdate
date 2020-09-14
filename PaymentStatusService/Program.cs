@@ -7,6 +7,7 @@ using System;
 using System.Data;
 using System.Globalization;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace PaymentStatusService
 {
@@ -67,7 +68,9 @@ namespace PaymentStatusService
                         DBConnection = Convert.ToString(dr["DBConnection"]);
 
                         string ConString = "Data Source = " + ServerName + " ; port = " + 3306 + "; Initial Catalog = " + DBConnection + " ; User Id = " + ServerCredentailsUsername + "; password = " + ServerCredentailsPassword + "";
-                        GetdataFromMySQL(ConString);
+                        //GetdataFromMySQL(ConString);
+                        Console.WriteLine(ConString);
+                        Task.Run(() => GetdataFromMySQL(ConString));
                     }
                 }
             }
